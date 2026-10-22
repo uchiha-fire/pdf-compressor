@@ -1,0 +1,10 @@
+"""
+pdf-compressor-cli
+Multi-tier interactive and scriptable PDF compression CLI tool.
+"""
+
+__version__ = "0.1.0"
+
+from .core import compress_pdf, format_size, get_file_size_mb
+
+__all__ = ["compress_pdf", "format_size", "get_file_size_mb", "__version__"]
