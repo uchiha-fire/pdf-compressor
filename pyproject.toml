@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pdfcompress-cli"
 version = "0.1.1"
 authors = [
-  { name = "Shubham", email = "shubham@example.com" },
+  { name = "Shubham Sharma", email = "shubham@list2shop.com" },
 ]
 description = "A multi-tier interactive and scriptable PDF compression CLI tool"
 readme = "README.md"
@@ -45,8 +45,10 @@ dev = [
 pdfcompress = "pdf_compressor.cli:main"
 
 [project.urls]
-"Homepage" = "https://github.com/shubham/pdf-compressor-cli"
-"Bug Tracker" = "https://github.com/shubham/pdf-compressor-cli/issues"
+"Homepage" = "https://github.com/uchiha-fire/pdf-compressor"
+"Repository" = "https://github.com/uchiha-fire/pdf-compressor"
+"Bug Tracker" = "https://github.com/uchiha-fire/pdf-compressor/issues"
+"Documentation" = "https://github.com/uchiha-fire/pdf-compressor#readme"
 
 [tool.setuptools.packages.find]
 where = ["."]
