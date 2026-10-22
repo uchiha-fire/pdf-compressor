@@ -4,8 +4,9 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/pdfcompress-cli.svg)](https://pypi.org/project/pdfcompress-cli/)
 [![GitHub stars](https://img.shields.io/github/stars/uchiha-fire/pdf-compressor?style=social)](https://github.com/uchiha-fire/pdf-compressor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Zephyrus Labs](https://img.shields.io/badge/Developed%20by-Zephyrus%20Labs-6366f1.svg)](https://zephyrus-labs.tech/)
 
-A multi-tier interactive and scriptable PDF compression CLI tool for Linux, macOS, and Windows.
+A multi-tier interactive and scriptable PDF compression CLI tool by **[Zephyrus Labs](https://zephyrus-labs.tech/)** for Linux, macOS, and Windows.
 
 Reduce bulky PDF documents by up to 85% with smart lossless content-stream optimization, identical object deduplication, and intelligent image downsampling.
 
@@ -132,13 +133,13 @@ print(f"Space saved:     {result['saved_pct']:.1f}%")
 
 ---
 
-## Author & Maintainer
+## Developed & Maintained by Zephyrus Labs
 
-Developed and maintained by **Shubham Sharma**:
+Built and maintained by **[Zephyrus Labs](https://zephyrus-labs.tech/)**.
 
+- 🌐 Website: [zephyrus-labs.tech](https://zephyrus-labs.tech/)
 - 💻 GitHub: [@uchiha-fire](https://github.com/uchiha-fire)
-- 💼 LinkedIn: [Shubham Sharma](https://www.linkedin.com/in/shubham-sharma)
-- ✉️ Email: [shubham@list2shop.com](mailto:shubham@list2shop.com)
+- ✉️ Contact: [shubham@list2shop.com](mailto:shubham@list2shop.com)
 
 If you find this tool helpful, please give it a ⭐️ on [GitHub](https://github.com/uchiha-fire/pdf-compressor)!
 
@@ -156,3 +157,9 @@ This tool builds upon and credits the exceptional work of open-source projects:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="right">
+  <sub>Lead Developer: <a href="https://www.linkedin.com/in/shubham-sharma-28487819b/">Shubham Sharma</a> (<a href="https://github.com/uchiha-fire">@uchiha-fire</a>)</sub>
+</p>
