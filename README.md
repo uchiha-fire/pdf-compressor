@@ -139,7 +139,7 @@ Built and maintained by **[Zephyrus Labs](https://zephyrus-labs.tech/)**.
 
 - 🌐 Website: [zephyrus-labs.tech](https://zephyrus-labs.tech/)
 - 💻 GitHub: [@uchiha-fire](https://github.com/uchiha-fire)
-- ✉️ Contact: [shubham@list2shop.com](mailto:shubham@list2shop.com)
+- ✉️ Contact: [zephyrus.labs@gmail.com](mailto:zephyrus.labs@gmail.com)
 
 If you find this tool helpful, please give it a ⭐️ on [GitHub](https://github.com/uchiha-fire/pdf-compressor)!
 
@@ -161,5 +161,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="right">
-  <sub>Lead Developer: <a href="https://www.linkedin.com/in/shubham-sharma-28487819b/">Shubham Sharma</a> (<a href="https://github.com/uchiha-fire">@uchiha-fire</a>)</sub>
+  <sub>Lead Developer: <a href="https://www.linkedin.com/in/shubham-sharma-28487819b/">Shubham Sharma</a> (<a href="https://github.com/uchiha-fire">@uchiha-fire</a>) &bull; <a href="mailto:sharmashubham25962@gmail.com">sharmashubham25962@gmail.com</a></sub>
 </p>
