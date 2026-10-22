@@ -15,9 +15,31 @@ from pypdf.errors import PdfReadError
 RESAMPLE_FILTER = getattr(getattr(Image, "Resampling", Image), "LANCZOS", Image.LANCZOS)
 
 
+def clean_path(path_str: str) -> str:
+    """Clean and normalize a user-entered path.
+
+    Handles:
+    - Enclosing quotes (' or ")
+    - Shell-escaped spaces (e.g. \\ ) from drag-and-drop or bash autocomplete
+    - Tilde expansion (~) to user home directory
+    """
+    if not path_str:
+        return ""
+    p = path_str.strip()
+    # Strip enclosing single or double quotes
+    if len(p) >= 2 and ((p[0] == '"' and p[-1] == '"') or (p[0] == "'" and p[-1] == "'")):
+        p = p[1:-1].strip()
+    # If literal path does not exist on disk and has backslash-escaped spaces, unescape them
+    if "\\ " in p and not os.path.exists(p):
+        p = p.replace("\\ ", " ")
+    # Expand user home directory (~)
+    p = os.path.expanduser(p)
+    return p
+
+
 def get_file_size_mb(path: str) -> float:
     """Return file size in megabytes."""
-    return os.path.getsize(path) / (1024 * 1024)
+    return os.path.getsize(clean_path(path)) / (1024 * 1024)
 
 
 def format_size(mb: float) -> str:
@@ -55,6 +77,9 @@ def compress_pdf(
         ValueError: If input is not a PDF or level is invalid.
         PdfReadError: If the PDF cannot be read or is corrupted.
     """
+    input_path = clean_path(input_path)
+    output_path = clean_path(output_path)
+
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
@@ -96,55 +121,71 @@ def compress_pdf(
     writer = PdfWriter()
     total_pages = len(reader.pages)
 
-    for page_idx, page in enumerate(reader.pages, start=1):
+    for page_idx, reader_page in enumerate(reader.pages, start=1):
+        # Add page to writer first so it is attached to the writer
+        writer_page = writer.add_page(reader_page)
+
         if selected_setting is not None:
             try:
-                images_dict = page.images
+                images_dict = writer_page.images
             except Exception:
                 images_dict = {}
 
-            for img_name, img_obj in images_dict.items():
+            for img_name, img_obj in list(images_dict.items()):
                 try:
                     raw_img = Image.open(io.BytesIO(img_obj.data))
 
                     # Normalize color modes to RGB for JPEG compression
-                    if raw_img.mode in ("RGBA", "P", "LA"):
+                    if raw_img.mode in ("RGBA", "LA"):
+                        bg = Image.new("RGB", raw_img.size, (255, 255, 255))
+                        bg.paste(raw_img, mask=raw_img.split()[-1])
+                        raw_img = bg
+                    elif raw_img.mode in ("P", "CMYK"):
                         raw_img = raw_img.convert("RGB")
-                    elif raw_img.mode == "CMYK":
-                        raw_img = raw_img.convert("RGB")
-                    elif raw_img.mode not in ("RGB", "L"):
+                    elif raw_img.mode not in ("RGB", "L", "1"):
                         raw_img = raw_img.convert("RGB")
 
                     w, h = raw_img.size
                     target_max_dim = selected_setting["max_dim"]
+                    resized = False
                     if max(w, h) > target_max_dim:
                         scaling = target_max_dim / float(max(w, h))
                         new_w = max(1, int(w * scaling))
                         new_h = max(1, int(h * scaling))
                         raw_img = raw_img.resize((new_w, new_h), RESAMPLE_FILTER)
+                        resized = True
 
-                    compressed_io = io.BytesIO()
+                    # Verify that re-encoding saves bytes or downscaled
+                    test_io = io.BytesIO()
                     raw_img.save(
-                        compressed_io,
+                        test_io,
                         format="JPEG",
                         quality=selected_setting["quality"],
                         optimize=True,
                     )
-                    compressed_io.seek(0)
-                    page.images[img_name].replace(compressed_io.getvalue())
+                    test_size = len(test_io.getvalue())
+
+                    if resized or test_size < len(img_obj.data):
+                        writer_page.images[img_name].replace(
+                            raw_img, quality=selected_setting["quality"]
+                        )
                 except Exception:
-                    # In case of unsupported image filters or formats, proceed without failing
+                    # In case of inline images, unsupported color filters, or read errors
                     continue
 
         try:
-            page.compress_content_streams()
+            writer_page.compress_content_streams()
         except Exception:
             pass
 
-        writer.add_page(page)
-
         if progress_callback:
             progress_callback(page_idx, total_pages)
+
+    # Losslessly deduplicate identical objects (e.g. repeated fonts, headers, background images)
+    try:
+        writer.compress_identical_objects()
+    except Exception:
+        pass
 
     if strip_metadata:
         writer.add_metadata({})

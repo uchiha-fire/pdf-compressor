@@ -9,6 +9,7 @@ from PIL import Image
 from pypdf import PdfReader
 
 from pdf_compressor.core import (
+    clean_path,
     compress_pdf,
     format_size,
     get_file_size_mb,
@@ -107,3 +108,21 @@ def test_compress_invalid_level(sample_pdf, tmp_path):
     out_path = str(tmp_path / "out.pdf")
     with pytest.raises(ValueError, match="Invalid compression level"):
         compress_pdf(sample_pdf, out_path, level=9)
+
+
+def test_clean_path(tmp_path):
+    # Test tilde expansion
+    assert clean_path("~") == os.path.expanduser("~")
+    # Test quotes stripping
+    assert clean_path('"quoted/path.pdf"') == "quoted/path.pdf"
+    assert clean_path("'single/quoted.pdf'") == "single/quoted.pdf"
+    # Test backslash space unescaping
+    spaced_dir = tmp_path / "my folder"
+    spaced_dir.mkdir()
+    pdf_file = spaced_dir / "doc.pdf"
+    pdf_file.write_text("dummy")
+
+    escaped_str = str(spaced_dir).replace(" ", "\\ ") + "/doc.pdf"
+    cleaned = clean_path(escaped_str)
+    assert os.path.exists(cleaned)
+    assert cleaned == str(pdf_file)

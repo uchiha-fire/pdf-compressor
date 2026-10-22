@@ -16,6 +16,9 @@ def sample_pdf(tmp_path):
     return pdf_path
 
 
+from pdf_compressor import __version__
+
+
 def test_cli_help():
     result = subprocess.run(
         [sys.executable, "-m", "pdf_compressor.cli", "--help"],
@@ -35,7 +38,7 @@ def test_cli_version():
         text=True,
     )
     assert result.returncode == 0
-    assert "0.1.0" in result.stdout
+    assert __version__ in result.stdout
 
 
 def test_cli_compress_file(sample_pdf, tmp_path):

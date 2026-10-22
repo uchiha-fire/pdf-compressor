@@ -8,27 +8,29 @@ import sys
 from typing import Tuple
 
 from . import __version__
-from .core import compress_pdf, format_size, get_file_size_mb
+from .core import compress_pdf, format_size, get_file_size_mb, clean_path
 
 
 def interactive_mode() -> Tuple[str, str, int]:
     """Interactive CLI wizard for guiding users through compression."""
-    print("=" * 60)
-    print(f"      PDF COMPRESSION UTILITY (v{__version__}) - INTERACTIVE      ")
-    print("=" * 60)
+    print("=" * 65)
+    print(f"       PDF COMPRESSION UTILITY (v{__version__}) - INTERACTIVE       ")
+    print("=" * 65)
 
     while True:
         try:
-            input_file = input("Enter path to PDF file: ").strip().strip('"').strip("'")
+            raw_input = input("Enter path to PDF file: ")
         except (KeyboardInterrupt, EOFError):
             print("\nOperation cancelled.")
             sys.exit(130)
+
+        input_file = clean_path(raw_input)
 
         if not input_file:
             continue
 
         if not os.path.exists(input_file):
-            print(f"Error: File '{input_file}' does not exist. Please try again.")
+            print(f"Error: File '{input_file}' does not exist. Please check the path.")
             continue
 
         if not input_file.lower().endswith(".pdf"):
@@ -39,11 +41,11 @@ def interactive_mode() -> Tuple[str, str, int]:
 
     orig_size = get_file_size_mb(input_file)
     print(f"\nOriginal Size: {format_size(orig_size)}")
-    print("-" * 60)
-    print(" [1] Light      (~10-20% reduction, lossless stream compression)")
-    print(" [2] Medium     (~40-60% reduction, 150 DPI, 75% quality)")
-    print(" [3] Aggressive (~70-85% reduction, 96 DPI, 40% quality)")
-    print("-" * 60)
+    print("-" * 65)
+    print(" [1] Light      (Lossless streams & deduplication; keeps images 100% untouched)")
+    print(" [2] Medium     (150 DPI / 1600px, 75% quality; ~40-60% saved - RECOMMENDED)")
+    print(" [3] Aggressive (96 DPI / 1000px, 40% quality; ~70-85% saved - MAX REDUCTION)")
+    print("-" * 65)
 
     while True:
         try:
@@ -64,12 +66,12 @@ def interactive_mode() -> Tuple[str, str, int]:
     default_out = f"{base}_compressed_level{level}{ext}"
 
     try:
-        out_prompt = input(f"Output path [Enter for '{default_out}']: ").strip().strip('"').strip("'")
+        out_prompt = input(f"Output path [Enter for '{default_out}']: ")
     except (KeyboardInterrupt, EOFError):
         print("\nOperation cancelled.")
         sys.exit(130)
 
-    output_file = out_prompt if out_prompt else default_out
+    output_file = clean_path(out_prompt) if out_prompt.strip() else default_out
 
     if os.path.exists(output_file):
         try:
@@ -156,7 +158,7 @@ def main() -> None:
         max_dim = None
         keep_metadata = False
     else:
-        input_file = args.input.strip().strip('"').strip("'")
+        input_file = clean_path(args.input)
         if not os.path.exists(input_file):
             print(f"Error: Input file does not exist: {input_file}", file=sys.stderr)
             sys.exit(1)
@@ -171,7 +173,7 @@ def main() -> None:
         quiet = args.quiet
 
         if args.output:
-            output_file = args.output
+            output_file = clean_path(args.output)
         else:
             base, ext = os.path.splitext(input_file)
             output_file = f"{base}_compressed_level{level}{ext}"
@@ -214,15 +216,22 @@ def main() -> None:
 
     if not quiet:
         sys.stdout.write("\n\n")
-        print("=" * 45)
-        print("          COMPRESSION COMPLETE")
-        print("=" * 45)
+        print("=" * 48)
+        print("             COMPRESSION COMPLETE")
+        print("=" * 48)
         print(f" Output file:     {stats['output_path']}")
         print(f" Pages processed: {stats['pages']}")
         print(f" Original size:   {format_size(stats['orig_mb'])}")
         print(f" Compressed size: {format_size(stats['final_mb'])}")
         print(f" Space saved:     {stats['saved_pct']:.1f}%")
-        print("=" * 45 + "\n")
+        print("=" * 48)
+
+        if stats["saved_pct"] <= 0.5 and level == 1:
+            print("\n💡 Tip: Level 1 only performs lossless stream compression and object")
+            print("deduplication without altering images. For scanned books or image-heavy")
+            print("PDFs, please use Level 2 (Medium) or Level 3 (Aggressive) to optimize images.\n")
+        else:
+            print("")
 
 
 if __name__ == "__main__":
