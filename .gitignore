@@ -23,3 +23,6 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local private docs & reference notes
+docs/
